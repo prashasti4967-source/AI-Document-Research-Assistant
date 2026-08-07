@@ -3,7 +3,9 @@ from app import (
     create_vector_db,
     retrieve_context,
     generate_answer,
-    search_web
+    search_web,
+    generate_answer_with_self_correction,
+    search_web_with_self_correction
 )
 
 st.title("🤖 AI Document Research Assistant")
@@ -22,7 +24,8 @@ if "retrieved_results" not in st.session_state:
     st.session_state.retrieved_results = None
 if "web_answer" not in st.session_state:
     st.session_state.web_answer = None
-
+if "self_correction_triggered" not in st.session_state:
+    st.session_state.self_correction_triggered = False
 # ---- PDF upload ----
 uploaded_file = st.file_uploader("Upload your PDF", type="pdf")
 
@@ -49,8 +52,10 @@ if st.button("Ask"):
         st.session_state.web_answer = None
 
         with st.spinner("Generating answer..."):
-            context, results = retrieve_context(st.session_state.vectorstore, query)
-            answer = generate_answer(context, query)
+            answer, context, results, corrected = generate_answer_with_self_correction(
+              st.session_state.vectorstore, query
+            )
+            st.session_state.self_correction_triggered = corrected
 
         print("Answer before if:", repr(answer))
 
@@ -64,7 +69,9 @@ if st.button("Ask"):
 
 # ---- Everything below runs on EVERY rerun, not just after "Ask" ----
 # This is what makes the Yes/No buttons actually work across reruns.
-
+if st.session_state.self_correction_triggered:
+    st.info("🔄 Self-correction was triggered — the answer was re-verified and regenerated for better accuracy.")
+    
 if st.session_state.doc_answer and not st.session_state.show_web_option:
     st.subheader("Answer")
     st.write(st.session_state.doc_answer)
@@ -85,13 +92,18 @@ if st.session_state.show_web_option:
     with col1:
         if st.button("Yes"):
             with st.spinner("Searching the web..."):
-                st.session_state.web_answer = search_web(st.session_state.saved_query)
+                web_answer, web_corrected = search_web_with_self_correction(st.session_state.saved_query)
+                st.session_state.web_answer = web_answer
+                st.session_state.self_correction_triggered = web_corrected
+                
             st.session_state.show_web_option = False
 
     with col2:
         if st.button("No"):
             st.session_state.web_answer = "Okay! I won't search the web."
             st.session_state.show_web_option = False
+if st.session_state.self_correction_triggered:
+    st.info("🔄 Self-correction was triggered — the answer was re-verified and regenerated for better accuracy.")
 
 if st.session_state.web_answer:
     st.subheader("Web Answer")

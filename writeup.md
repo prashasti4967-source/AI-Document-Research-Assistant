@@ -1,0 +1,9 @@
+## What Would I Improve With More Time?
+
+If I had more time, the first thing I would improve is **multi-document support**. The task asked for at least five PDFs to be ingested together, but due to time constraints my current implementation only supports uploading and querying a single PDF at a time. I would extend the ingestion pipeline to accept multiple files, store them in a dedicated `/data` folder, and tag each chunk's metadata clearly so retrieval and citations work correctly across documents rather than just one.
+
+Second, I would strengthen the **self-correction mechanism**. Right now, it performs a single yes/no verification of whether the generated answer is supported by the retrieved context, and retries once with a wider retrieval if needed. With more time, I would make this more granular — checking individual claims within the answer against the context rather than verifying the answer as a whole, and allowing multiple correction attempts with different retrieval strategies (e.g., re-ranking, query rewriting) rather than just increasing the number of retrieved chunks.
+
+Third, I would improve **reliability around the LLM API itself**. While building this, I ran into rate-limit errors and a model deprecation issue that broke the app mid-testing. I would add proper retry logic with exponential backoff, caching for repeated queries, and graceful fallback messaging so the app degrades cleanly instead of crashing when the API is unavailable.
+
+Finally, I would add **conversational memory**, so users can ask follow-up questions that reference earlier answers in the same session, and improve citation precision by linking directly to the exact retrieved chunk rather than just the source document and page number.
