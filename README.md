@@ -87,4 +87,5 @@ Answering questions from a document corpus without hallucinating, while giving t
 See the accompanying write-up (`writeup.md`) for a detailed discussion of what would be improved with more time — including more robust chunking, multi-PDF support, better rate-limit handling, and a more thorough self-correction loop.
 
 ## Demo Video
+https://drive.google.com/file/d/12ckpqJXTlHW5sRP1bpycxd3qU2OFbgH_/view?usp=sharing
 # AI-Document-Research-Assistant
